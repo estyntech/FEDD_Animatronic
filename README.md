@@ -1,6 +1,10 @@
 # FEDD-Animatronic
 Firmware and control code for a 3D-printed animatronic head powered by an ESP32. Features a finite state machine with Scanning, Tracking, and Alert modes, VL53L0X time-of-flight sensor for object detection, servo-driven rotation, LED feedback, and telemetry webpage.
 
+Libraries to install: 
+- VL53L0X by Pololu
+- ESP32Servo by Kevin Harrington
+
 # Design Overview
 
 This project is the development of an active animatronic figure built around a fully 3D-printed character model. The figure’s head rotates horizontally and reacts dynamically to objects in its environment. The system is powered by an ESP32 microcontroller and operates using a structured Finite State Machine to manage behavior, motion, sensing, and feedback.
