@@ -1,19 +1,23 @@
 #include "motion.h"
 #include "config.h"
-#include <ESP32Servo.h>  // Install "ESP32Servo" by Kevin Harrington via Library Manager
+#include <ESP32Servo.h>
 
 static Servo headServo;
 static Servo jawServo;
 
 void initServos() {
-  // Allocate PWM timers — ESP32Servo handles LEDC channel assignment
+  // FIX: Allocate all 4 timers upfront so ESP32Servo doesn't conflict
+  // with the buzzer's LEDC channel or I2C peripherals
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  // Timer 3 is reserved for the buzzer — do NOT allocate it here
 
-  headServo.setPeriodHertz(50);  // Standard 50Hz servo signal
+  headServo.setPeriodHertz(50);
   jawServo.setPeriodHertz(50);
 
-  headServo.attach(PIN_SERVO_HEAD, 500, 2400); // 500–2400µs pulse range
+  // attach(pin, minUs, maxUs) — 500-2400µs covers most hobby servos
+  headServo.attach(PIN_SERVO_HEAD, 500, 2400);
   jawServo.attach(PIN_SERVO_JAW,   500, 2400);
 
   setHeadAngle(HEAD_CENTER_DEG);
