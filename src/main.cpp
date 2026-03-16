@@ -1,77 +1,58 @@
 #include <Arduino.h>
 #include <Servo.h>
-#include <Adafruit_VL53L0X.h>
 #include <Wire.h>
+#include <Adafruit_VL53L0X.h>
+#include "Controls.h"
 
-#define NECK_MIN_ANGLE 0
-#define NECK_MAX_ANGLE 180
+#define SDA	P36
+#define SCL	P37
 
-#define JAW_MIN_ANGLE 0
-#define JAW_MAX_ANGLE 90
+Adafruit_VL53L0X tof = Adafruit_VL53L0X();
+TwoWire bus = TwoWire(0);
 
-#define NECK_TURN_DELAY 25
-#define NECK_STOP_DELAY 100
-
-#define JAW_TURN_DELAY 25
-#define JAW_STOP_DELAY 25
-
-Servo neck;
-Servo jaw;
-
-void turnHead();
-void operateJaw();
-
-void setup() 
+void setup()
 {
-  Serial.begin(9600);
-  neck.write(NECK_MAX_ANGLE / 2);
-  jaw.write(JAW_MIN_ANGLE);
+	Serial.begin(115200);
+
+	while (!Serial)
+	{
+		delay(1);
+	}
+
+	bus.begin(SDA, SCL);
+
+	if (!tof.begin(0x29, &bus))
+	{
+		Serial.println("Initialization of VL53L0X failed!");
+		while(true);
+	}
+
+	Serial.println("Successfully initialized VL53L0X!");
 }
 
-void loop() 
+void loop()
 {
-  turnHeadRight();
-  delay(NECK_STOP_DELAY);
 
-  operateJaw();
+	VL53L0X_RangingMeasurementData_t measure;
+	tof.rangingTest(&measure, false);
 
-  turnHeadLeft();
-  delay(NECK_STOP_DELAY);
- 
-  operateJaw();
-}
+	if (measure.RangeStatus != 4)
+	{
+		Serial.println("Distance (mm): " + (String)measure.RangeMilliMeter);
+	}
 
-void turnHeadRight()
-{
-  for(int i = NECK_MIN_ANGLE; i < NECK_MAX_ANGLE; i++)
-  {
-    neck.write(i);
-    delay(NECK_TURN_DELAY);
-  }
-}
+	else
+	{
+		Serial.println("Out of range.");
+	}
 
-void turnHeadLeft()
-{
-  for(int i = NECK_MAX_ANGLE; i > NECK_MIN_ANGLE; i--)
-  {
-    neck.write(i);
-    delay(NECK_TURN_DELAY);
-  }
-}
+	turnHeadRight();
+	delay(NECK_STOP_DELAY);
 
-void operateJaw()
-{
-  for(int i = JAW_MIN_ANGLE; i < JAW_MAX_ANGLE; i++)
-  {
-    jaw.write(i);
-    delay(JAW_TURN_DELAY);
-  }
+	operateJaw();
 
-  delay(JAW_STOP_DELAY);
-  
-  for(int i = JAW_MAX_ANGLE; i > JAW_MIN_ANGLE; i--)
-  {
-    jaw.write(i);
-    delay(JAW_TURN_DELAY);
-  }
+	turnHeadLeft();
+	delay(NECK_STOP_DELAY);
+
+	operateJaw();
 }
