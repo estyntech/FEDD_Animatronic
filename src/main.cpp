@@ -34,10 +34,12 @@ void setup()
 	// delay(1000);
 	Serial.begin(115200);
 
+	/*
 	while (!Serial)
 	{
 		delay(1);
 	}
+	*/
 
 	if (!bus.begin(SDA, SCL))
 	{
