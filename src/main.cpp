@@ -4,9 +4,9 @@
 #include <Adafruit_VL53L0X.h>
 #include "Controls.h"
 
-#define SDA	P36
-#define SCL	P37
-#define SHUTDOWN P34
+#define SDA	P23
+#define SCL	P24
+#define SHUTDOWN P25
 // #define INT P22
 #define ADDR 0x30
 #define DETECT_RANGE 500

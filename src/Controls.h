@@ -3,12 +3,12 @@
 #include <Adafruit_VL53L0X.h>
 #include <Wire.h>
 
-#define SDA P36
-#define SCL P37
+#define SDA P23
+#define SCL P24
 // #define ADDR 0x30
 
-#define NECK_PIN P4
-#define JAW_PIN P5
+#define NECK_PIN P21
+#define JAW_PIN P22
 
 #define NECK_MIN_ANGLE 0
 #define NECK_MAX_ANGLE 180
