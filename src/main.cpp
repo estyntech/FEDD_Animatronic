@@ -3,6 +3,8 @@
 #include <Wire.h>
 #include <Adafruit_VL53L0X.h>
 #include "Controls.h"
+#include <WiFi.h>
+#include <WebServer.h>
 
 #define SDA	P23
 #define SCL	P24
@@ -16,6 +18,14 @@
 #define BEEP_TIME_DANGER 250 / 3
 #define DANGER_FREQ 880
 #define IDLE_FREQ 1320
+
+// --- WiFi config ---
+const char* ssid     = "ncsu";
+const char* password = "";
+WebServer webServer(80);
+volatile int   webAngle    = 90;
+volatile int   webDist     = 0;
+volatile char  webMode[16] = "SCANNING";
 
 Adafruit_VL53L0X tof = Adafruit_VL53L0X();
 TwoWire bus = TwoWire(1);
@@ -36,6 +46,49 @@ TaskHandle_t Idle;
 TaskHandle_t Read;
 
 int SensorDistance;
+
+void handleTelemetry() {
+  String json = "{\"angle\":";
+  json += String(webAngle);
+  json += ",\"dist\":";
+  json += String(webDist);
+  json += ",\"mode\":\"";
+  json += String(webMode);
+  json += "\"}";
+  webServer.send(200, "application/json", json);
+}
+
+void handleRoot() {
+  // We'll serve the HTML from a string
+  extern const char INDEX_HTML[];
+  webServer.send(200, "text/html", INDEX_HTML);
+}
+
+void webTask(void* parameters) {
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  int attempts = 0;
+  while (WiFi.status() != WL_CONNECTED && attempts < 40) {
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    Serial.print(".");
+    attempts++;
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.printf("\n[WIFI] Connected! IP: %s\n", 
+                  WiFi.localIP().toString().c_str());
+  } else {
+    Serial.println("\n[WIFI] Failed.");
+    vTaskDelete(NULL);
+    return;
+  }
+  webServer.on("/", handleRoot);
+  webServer.on("/telemetry", handleTelemetry);
+  webServer.begin();
+  for (;;) {
+    webServer.handleClient();
+    vTaskDelay(2 / portTICK_PERIOD_MS);
+  }
+}
 
 void setup()
 {
@@ -69,6 +122,9 @@ void setup()
 
 	// digitalWrite(INT, HIGH);
 	initControls();
+
+	//web page task
+	xTaskCreatePinnedToCore(webTask, "Web", 8192, NULL, 1, NULL, 0);
 
 	xTaskCreatePinnedToCore(
 		idle,
@@ -170,8 +226,14 @@ void reading(void *parameters)
 		tof.rangingTest(&measure, false);
 		SensorDistance = measure.RangeMilliMeter;
 		Serial.println(SensorDistance);
+		
+	    // Update web telemetry
+    	webAngle = currentNeckAngle;
+    	webDist  = SensorDistance;
+		
 		if(checkInRange(measure.RangeStatus, SensorDistance, DETECT_RANGE) && SensorDistance > INTERIOR_RANGE)
 		{
+			strcpy((char*)webMode, "DETECTED");
 			digitalWrite(RED_LED_PIN, HIGH);
             digitalWrite(BLUE_LED_PIN, LOW);
 			Serial.println("Blocked!");
@@ -185,6 +247,7 @@ void reading(void *parameters)
 		}
 		else 
 		{
+			strcpy((char*)webMode, "SCANNING");
 			digitalWrite(RED_LED_PIN, LOW);
             digitalWrite(BLUE_LED_PIN, HIGH);
 			// tone(BZ, IDLE_FREQ, BEEP_TIME_IDLE);
