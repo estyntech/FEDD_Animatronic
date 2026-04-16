@@ -609,7 +609,7 @@ void setup()
 	xTaskCreatePinnedToCore(
 		reading,
 		"Read",
-		200000,
+		16384,
 		NULL,
 		1,
 		&Read,
@@ -726,6 +726,6 @@ void reading(void *parameters)
             digitalWrite(BLUE_LED_PIN, HIGH);
 			// tone(BZ, IDLE_FREQ, BEEP_TIME_IDLE);
 		}
-		// vTaskDelay(50 / portTICK_PERIOD_MS);
+		vTaskDelay(25 / portTICK_PERIOD_MS);
 	}
 }
