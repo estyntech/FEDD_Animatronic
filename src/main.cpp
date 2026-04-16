@@ -578,8 +578,9 @@ void setup()
 	}
 
 	Serial.println("Initialized i2c bus!");
-	pinMode(SHUTDOWN, OUTPUT);
-	digitalWrite(SHUTDOWN, LOW);
+  pinMode(SHUTDOWN, OUTPUT);
+  digitalWrite(SHUTDOWN, HIGH);  // Release from reset FIRST
+  delay(10);                     // Give VL53L0X time to boot (~1.2ms needed, 10ms is safe)
 
 	if (!tof.begin(ADDR, true, &bus))
 	{

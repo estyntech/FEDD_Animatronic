@@ -67,6 +67,7 @@ void centerHead()
         for(currentNeckAngle; currentNeckAngle < NECK_CENTER_ANGLE; currentNeckAngle++)
         {
             neck.write(currentNeckAngle);
+            vTaskDelay(NECK_TURN_DELAY / portTICK_PERIOD_MS);
         }
     }
 
@@ -75,6 +76,7 @@ void centerHead()
         for(currentNeckAngle; currentNeckAngle > NECK_CENTER_ANGLE; currentNeckAngle--)
         {
             neck.write(currentNeckAngle);
+            vTaskDelay(NECK_TURN_DELAY / portTICK_PERIOD_MS);
         }
     }
 
