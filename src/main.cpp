@@ -609,7 +609,7 @@ void setup()
 	xTaskCreatePinnedToCore(
 		reading,
 		"Read",
-		16384,
+		65536,
 		NULL,
 		3,
 		&Read,
