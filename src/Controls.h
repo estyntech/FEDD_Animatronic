@@ -144,7 +144,7 @@ void stopHead()
     stoppedNeckAngle = currentNeckAngle;
 
     // operateJaw();
-    vTaskDelay(2000 / portTICK_PERIOD_MS)
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
 
     continueMotion();
 }
