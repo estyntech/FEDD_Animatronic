@@ -594,7 +594,7 @@ void setup()
 	initControls();
 
 	//web page task
-	xTaskCreatePinnedToCore(webTask, "Web", 8192, NULL, 1, NULL, 0);
+	xTaskCreatePinnedToCore(webTask, "Web", 16384, NULL, 1, NULL, 0);
 
 	xTaskCreatePinnedToCore(
 		idle,
