@@ -27,6 +27,8 @@ volatile int   webAngle    = 90;
 volatile int   webDist     = 0;
 volatile char  webMode[16] = "SCANNING";
 
+portMUX_TYPE modeMux = portMUX_INITIALIZER_UNLOCKED;
+
 Adafruit_VL53L0X tof = Adafruit_VL53L0X();
 TwoWire bus = TwoWire(1);
 // bool detected;
