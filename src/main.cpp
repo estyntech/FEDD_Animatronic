@@ -556,7 +556,7 @@ void webTask(void* parameters) {
   webServer.begin();
   for (;;) {
     webServer.handleClient();
-    vTaskDelay(2 / portTICK_PERIOD_MS);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }
 
@@ -601,9 +601,9 @@ void setup()
 		"Idle",
 		10000,
 		NULL,
-		1,
+		2,
 		&Idle,
-		0
+		1
 	);
 
 	xTaskCreatePinnedToCore(
@@ -611,7 +611,7 @@ void setup()
 		"Read",
 		16384,
 		NULL,
-		1,
+		3,
 		&Read,
 		1
 	);
