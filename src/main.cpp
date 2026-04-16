@@ -20,8 +20,8 @@
 #define IDLE_FREQ 1320
 
 // --- WiFi config ---
-const char* ssid     = "benjamin";
-const char* password = "Yoda0928";
+const char* ssid     = "ncsu";
+const char* password = "";
 WebServer webServer(80);
 volatile int   webAngle    = 90;
 volatile int   webDist     = 0;
@@ -556,7 +556,6 @@ void webTask(void* parameters) {
   webServer.begin();
   for (;;) {
     webServer.handleClient();
-    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }
 
@@ -677,10 +676,10 @@ void idle(void *parameters)
 	digitalWrite(BLUE_LED_PIN, HIGH);
 	digitalWrite(RED_LED_PIN, LOW);
 
+  centerHead();
+
 	for(;;)
 	{
-		centerHead();
-
 		turnHeadLeft();
 		vTaskDelay(NECK_STOP_DELAY / portTICK_PERIOD_MS);
 
@@ -702,7 +701,7 @@ void reading(void *parameters)
     	webAngle = currentNeckAngle;
     	webDist  = SensorDistance;
 		
-		if(checkInRange(measure.RangeStatus, SensorDistance, DETECT_RANGE) && SensorDistance > INTERIOR_RANGE)
+		while(checkInRange(measure.RangeStatus, SensorDistance, DETECT_RANGE) && SensorDistance > INTERIOR_RANGE)
 		{
 			portENTER_CRITICAL(&modeMux);
 			strcpy((char*)webMode, "DETECTED");
@@ -712,21 +711,23 @@ void reading(void *parameters)
 			Serial.println("Blocked!");
 			Serial.println(SensorDistance);
 			stopHead();
+
+      tof.rangingTest(&measure, false);
+		  SensorDistance = measure.RangeMilliMeter;
 			/*
 			tone(BZ, DANGER_FREQ, BEEP_TIME_DANGER);
 			tone(BZ, DANGER_FREQ, BEEP_TIME_DANGER);
 			tone(BZ, DANGER_FREQ, BEEP_TIME_DANGER);
 			*/
 		}
-		else 
-		{
-			portENTER_CRITICAL(&modeMux);
-      		strcpy((char*)webMode, "SCANNING");
-      		portEXIT_CRITICAL(&modeMux);
-			digitalWrite(RED_LED_PIN, LOW);
-            digitalWrite(BLUE_LED_PIN, HIGH);
-			// tone(BZ, IDLE_FREQ, BEEP_TIME_IDLE);
-		}
+		
+    portENTER_CRITICAL(&modeMux);
+        strcpy((char*)webMode, "SCANNING");
+        portEXIT_CRITICAL(&modeMux);
+    digitalWrite(RED_LED_PIN, LOW);
+          digitalWrite(BLUE_LED_PIN, HIGH);
+    // tone(BZ, IDLE_FREQ, BEEP_TIME_IDLE);
+		
 		vTaskDelay(25 / portTICK_PERIOD_MS);
 	}
 }
