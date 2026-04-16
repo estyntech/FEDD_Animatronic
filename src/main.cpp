@@ -20,8 +20,8 @@
 #define IDLE_FREQ 1320
 
 // --- WiFi config ---
-const char* ssid     = "ncsu";
-const char* password = "";
+const char* ssid     = "benjamin";
+const char* password = "Yoda0928";
 WebServer webServer(80);
 volatile int   webAngle    = 90;
 volatile int   webDist     = 0;

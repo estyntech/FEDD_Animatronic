@@ -11,8 +11,8 @@
 #define JAW_PIN P22
 
 #define NECK_MIN_ANGLE 45
-#define NECK_MAX_ANGLE 135
-#define NECK_CENTER_ANGLE 90
+#define NECK_MAX_ANGLE 150
+#define NECK_CENTER_ANGLE 75
 
 #define JAW_MIN_ANGLE 0
 #define JAW_MAX_ANGLE 90
